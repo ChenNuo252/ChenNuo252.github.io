@@ -1,0 +1,563 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>MyBatis-02：CRUD操作及配置解析 | ChenNuo-Blog</title><meta name="keywords" content="Mybatis的学习笔记"><meta name="author" content="ChenNuo"><meta name="copyright" content="ChenNuo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="MyBatis-02：CRUD操作及配置解析namespace   将上面案例中的UserMapper接口改名为 UserDao；    将UserMapper.xml中的namespace改为为UserDao的路径   再次测试    结论：    配置文件中namespace中的名称为对应Mapper接口或者Dao接口的完整包名,必须一致！  select select标签是mybatis中最">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyBatis-02：CRUD操作及配置解析">
+<meta property="og:url" content="http://chennuo252.top/2022/05/10/MyBatis-02%EF%BC%9ACRUD%E6%93%8D%E4%BD%9C%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="ChenNuo-Blog">
+<meta property="og:description" content="MyBatis-02：CRUD操作及配置解析namespace   将上面案例中的UserMapper接口改名为 UserDao；    将UserMapper.xml中的namespace改为为UserDao的路径   再次测试    结论：    配置文件中namespace中的名称为对应Mapper接口或者Dao接口的完整包名,必须一致！  select select标签是mybatis中最">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2022/05/08/OlvVlq.jpg">
+<meta property="article:published_time" content="2022-05-10T13:36:24.000Z">
+<meta property="article:modified_time" content="2022-06-27T07:02:47.020Z">
+<meta property="article:author" content="ChenNuo">
+<meta property="article:tag" content="Mybatis的学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/05/08/OlvVlq.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://chennuo252.top/2022/05/10/MyBatis-02%EF%BC%9ACRUD%E6%93%8D%E4%BD%9C%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MyBatis-02：CRUD操作及配置解析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-27 15:02:47'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"  media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-artitalk-pro/lib/card.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-filter-gitcalendar/lib/gitcalendar.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://unpkg.zhimg.com/hexo-butterfly-clock/lib/clock.min.css" /><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/share/"><i class="fa-fw fa fa-heartbeat"></i><span> 生活</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s1.ax1x.com/2022/05/08/OlvVlq.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">ChenNuo-Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/share/"><i class="fa-fw fa fa-heartbeat"></i><span> 生活</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">MyBatis-02：CRUD操作及配置解析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-05-10T13:36:24.000Z" title="发表于 2022-05-10 21:36:24">2022-05-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-27T07:02:47.020Z" title="更新于 2022-06-27 15:02:47">2022-06-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java/">Java</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>15分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="MyBatis-02：CRUD操作及配置解析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="MyBatis-02：CRUD操作及配置解析"><a href="#MyBatis-02：CRUD操作及配置解析" class="headerlink" title="MyBatis-02：CRUD操作及配置解析"></a>MyBatis-02：CRUD操作及配置解析</h1><h3 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h3><ol>
+<li>  将上面案例中的UserMapper接口改名为 UserDao；  </li>
+<li> 将UserMapper.xml中的namespace改为为UserDao的路径 </li>
+<li> 再次测试 </li>
+</ol>
+<p> 结论：  </p>
+<p> 配置文件中namespace中的名称为对应Mapper接口或者Dao接口的完整包名,必须一致！ </p>
+<h3 id="select"><a href="#select" class="headerlink" title="select"></a>select</h3><ul>
+<li>select标签是mybatis中最常用的标签之一 </li>
+<li>select语句有很多属性可以详细配置每一条SQL语句  <ul>
+<li> SQL语句返回值类型。【完整的类名或者别名】 </li>
+<li>传入SQL语句的参数类型 。【万能的Map，可以多尝试使用】 </li>
+<li>命名空间中唯一的标识符 </li>
+<li>接口中的方法名与映射文件中的SQL语句ID 一一对应 </li>
+<li>id </li>
+<li>parameterType </li>
+<li>resultType  </li>
+</ul>
+</li>
+</ul>
+<p> 需求：根据id查询用户  </p>
+<ol>
+<li> 在UserMapper中添加对应方法 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public interface UserMapper &#123;</span><br><span class="line">//查询全部用户</span><br><span class="line">List&lt;User&gt; selectUser();</span><br><span class="line">//根据id查询用户</span><br><span class="line">User selectUserById(int id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> 在UserMapper.xml中添加Select语句 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;select id=&quot;selectUserById&quot; resultType=&quot;com.kuang.pojo.User&quot;&gt;</span><br><span class="line">select * from user where id = #&#123;id&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 测试类中测试 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void tsetSelectUserById() &#123;</span><br><span class="line">SqlSession session = MybatisUtils.getSession(); //获取SqlSession连接</span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">User user = mapper.selectUserById(1);</span><br><span class="line">System.out.println(user);</span><br><span class="line">session.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 课堂练习：根据 密码 和 名字 查询用户 </p>
+<p> 思路一：直接在方法中传递参数 </p>
+<ol>
+<li><p> 在接口方法的参数前加 @Param属性 </p>
+</li>
+<li><p> Sql语句编写的时候，直接取@Param中设置的值即可，不需要单独设置参数类型 </p>
+</li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//通过密码和名字查询用户</span><br><span class="line">User selectUserByNP(@Param(&quot;username&quot;) String username,@Param(&quot;pwd&quot;) String pwd);</span><br><span class="line">/*</span><br><span class="line">&lt;select id=&quot;selectUserByNP&quot; resultType=&quot;com.kuang.pojo.User&quot;&gt;</span><br><span class="line">select * from user where name = #&#123;username&#125; and pwd = #&#123;pwd&#125;</span><br><span class="line">&lt;/select&gt;</span><br><span class="line">*/</span><br></pre></td></tr></table></figure>
+
+<p> 思路二：<strong>使用万能的Map</strong> </p>
+<ol>
+<li> 在接口方法中，参数直接传递Map； </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">User selectUserByNP2(Map&lt;String,Object&gt; map);</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> 编写sql语句的时候，需要传递参数类型，参数类型为map </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;select id=&quot;selectUserByNP2&quot; parameterType=&quot;map&quot; resultType=&quot;com.kuang.pojo.User&quot;&gt;</span><br><span class="line">select * from user where name = #&#123;username&#125; and pwd = #&#123;pwd&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 在使用方法的时候，Map的 key 为 sql中取的值即可，没有顺序要求！ </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();</span><br><span class="line">map.put(&quot;username&quot;,&quot;小明&quot;);</span><br><span class="line">map.put(&quot;pwd&quot;,&quot;123456&quot;);</span><br><span class="line">User user = mapper.selectUserByNP2(map);</span><br></pre></td></tr></table></figure>
+
+<p> <strong>总结：如果参数过多，我们可以考虑直接使用Map实现，如果参数比较少，直接传递参数即可</strong> </p>
+<h3 id="insert"><a href="#insert" class="headerlink" title="insert"></a>insert</h3><p>我们一般使用insert标签进行插入操作，它的配置和select标签差不多！ </p>
+<p>需求：给数据库增加一个用户 </p>
+<ol>
+<li> 在UserMapper接口中添加对应的方法 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//添加一个用户</span><br><span class="line">int addUser(User user);</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> 在UserMapper.xml中添加insert语句 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;insert id=&quot;addUser&quot; parameterType=&quot;com.kuang.pojo.User&quot;&gt;</span><br><span class="line">insert into user (id,name,pwd) values (#&#123;id&#125;,#&#123;name&#125;,#&#123;pwd&#125;)</span><br><span class="line">&lt;/insert&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 测试 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void testAddUser() &#123;</span><br><span class="line">SqlSession session = MybatisUtils.getSession();</span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">User user = new User(5,&quot;王五&quot;,&quot;zxcvbn&quot;);</span><br><span class="line">int i = mapper.addUser(user);</span><br><span class="line">System.out.println(i);</span><br><span class="line">session.commit(); //提交事务,重点!不写的话不会提交到数据库</span><br><span class="line">session.close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<pre><code>**注意点：增、删、改操作需要提交事务！** 
+</code></pre>
+<h3 id="update"><a href="#update" class="headerlink" title="update"></a>update</h3><p>我们一般使用update标签进行更新操作，它的配置和select标签差不多！ </p>
+<p>需求：修改用户的信息 </p>
+<ol>
+<li> 同理，编写接口方法 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//修改一个用户</span><br><span class="line">int updateUser(User user);</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> 编写对应的配置文件SQL </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;update id=&quot;updateUser&quot; parameterType=&quot;com.kuang.pojo.User&quot;&gt;</span><br><span class="line">update user set name=#&#123;name&#125;,pwd=#&#123;pwd&#125; where id = #&#123;id&#125;</span><br><span class="line">&lt;/update&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 测试 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void testUpdateUser() &#123;</span><br><span class="line">SqlSession session = MybatisUtils.getSession();</span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">User user = mapper.selectUserById(1);</span><br><span class="line">user.setPwd(&quot;asdfgh&quot;);</span><br><span class="line">int i = mapper.updateUser(user);</span><br><span class="line">System.out.println(i);</span><br><span class="line">session.commit(); //提交事务,重点!不写的话不会提交到数据库</span><br><span class="line">session.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="delete"><a href="#delete" class="headerlink" title="delete"></a>delete</h3><p> 我们一般使用delete标签进行删除操作，它的配置和select标签差不多！ </p>
+<p>需求：根据id删除一个用户  </p>
+<ol>
+<li> 同理，编写接口方法 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//根据id删除用户</span><br><span class="line">int deleteUser(int id);</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> 编写对应的配置文件SQL </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;delete id=&quot;deleteUser&quot; parameterType=&quot;int&quot;&gt;</span><br><span class="line">delete from user where id = #&#123;id&#125;</span><br><span class="line">&lt;/delete&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 测试 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void testDeleteUser() &#123;</span><br><span class="line">SqlSession session = MybatisUtils.getSession();</span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">int i = mapper.deleteUser(5);</span><br><span class="line">System.out.println(i);</span><br><span class="line">session.commit(); //提交事务,重点!不写的话不会提交到数据库</span><br><span class="line">session.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>结论：</strong></p>
+<ul>
+<li> 所有的增删改操作都需要提交事务！ </li>
+<li>接口所有的普通参数，尽量都写上@Param参数，尤其是多个参数时，必须写上！ </li>
+<li>有时候根据业务的需求，可以考虑使用map传递参数！ </li>
+<li>为了规范操作，在SQL的配置文件中，我们尽量将Parameter参数和resultType都写上！ </li>
+</ul>
+<h3 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h3><p> 模糊查询like语句该怎么写? </p>
+<p>第1种：在Java代码中添加sql通配符。  </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">string wildcardname = “%smi%”;</span><br><span class="line">list&lt;name&gt; names = mapper.selectlike(wildcardname);</span><br><span class="line">&lt;select id=”selectlike”&gt;</span><br><span class="line">select * from foo where bar like #&#123;value&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 第2种：在sql语句中拼接通配符，会引起sql注入 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">string wildcardname = “smi”;</span><br><span class="line">list&lt;name&gt; names = mapper.selectlike(wildcardname);</span><br><span class="line">&lt;select id=”selectlike”&gt;</span><br><span class="line">select * from foo where bar like &quot;%&quot;#&#123;value&#125;&quot;%&quot;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="配置解析"><a href="#配置解析" class="headerlink" title="配置解析"></a>配置解析</h2><h3 id="核心配置文件"><a href="#核心配置文件" class="headerlink" title="核心配置文件"></a>核心配置文件</h3><ul>
+<li> mybatis-config.xml 系统核心配置文件 </li>
+<li>MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性信息。 </li>
+<li>能配置的内容如下： </li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">configuration（配置）</span><br><span class="line">properties（属性）</span><br><span class="line">settings（设置）</span><br><span class="line">typeAliases（类型别名）</span><br><span class="line">typeHandlers（类型处理器）</span><br><span class="line">objectFactory（对象工厂）</span><br><span class="line">plugins（插件）</span><br><span class="line">environments（环境配置）</span><br><span class="line">environment（环境变量）</span><br><span class="line">transactionManager（事务管理器）</span><br><span class="line">dataSource（数据源）</span><br><span class="line">databaseIdProvider（数据库厂商标识）</span><br><span class="line">mappers（映射器）</span><br><span class="line">&lt;!-- 注意元素节点的顺序！顺序不对会报错 --&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 我们可以阅读 mybatis-config.xml 上面的dtd的头文件！ </p>
+<h3 id="environments元素"><a href="#environments元素" class="headerlink" title="environments元素"></a>environments元素</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;environments default=&quot;development&quot;&gt;</span><br><span class="line">&lt;environment id=&quot;development&quot;&gt;</span><br><span class="line">&lt;transactionManager type=&quot;JDBC&quot;&gt;</span><br><span class="line">&lt;property name=&quot;...&quot; value=&quot;...&quot;/&gt;</span><br><span class="line">&lt;/transactionManager&gt;</span><br><span class="line">&lt;dataSource type=&quot;POOLED&quot;&gt;</span><br><span class="line">&lt;property name=&quot;driver&quot; value=&quot;$&#123;driver&#125;&quot;/&gt;</span><br><span class="line">&lt;property name=&quot;url&quot; value=&quot;$&#123;url&#125;&quot;/&gt;</span><br><span class="line">&lt;property name=&quot;username&quot; value=&quot;$&#123;username&#125;&quot;/&gt;</span><br><span class="line">&lt;property name=&quot;password&quot; value=&quot;$&#123;password&#125;&quot;/&gt;</span><br><span class="line">&lt;/dataSource&gt;</span><br><span class="line">&lt;/environment&gt;</span><br><span class="line">&lt;/environments&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p> 配置MyBatis的多套运行环境，将SQL映射到多个不同的数据库上，必须指定其中一个为默认运行环境 （通过default指定） </p>
+</li>
+<li><p>子元素节点：environment  </p>
+<ul>
+<li><p> dataSource 元素使用标准的 JDBC 数据源接口来配置 JDBC 连接对象的资源。 </p>
+</li>
+<li><p>数据源是必须配置的。 </p>
+</li>
+<li><p>有三种内建的数据源类型 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">type=&quot;[UNPOOLED|POOLED|JNDI]&quot;） </span><br></pre></td></tr></table></figure></li>
+<li><p>unpooled：这个数据源的实现只是每次被请求时打开和关闭连接。 </p>
+</li>
+<li><p>pooled：这种数据源的实现利用“池”的概念将 JDBC 连接对象组织起来 , 这是一种使得并发 Web 应 用快速响应请求的流行处理方式。 </p>
+</li>
+<li><p>jndi：这个数据源的实现是为了能在如 Spring 或应用服务器这类容器中使用，容器可以集中或在外 部配置数据源，然后放置一个 JNDI上下文的引用。 </p>
+</li>
+<li><p>数据源也有很多第三方的实现，比如dbcp，c3p0，druid等等…. </p>
+</li>
+<li><p>详情：点击查看官方文档 </p>
+</li>
+<li><p>这两种事务管理器类型都不需要设置任何属性。 </p>
+</li>
+<li><p>具体的一套环境，通过设置id进行区别，id保证唯一！ </p>
+</li>
+<li><p>子元素节点：transactionManager - [ 事务管理器 ]  </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;!-- 语法 --&gt;</span><br><span class="line">&lt;transactionManager type=&quot;[ JDBC | MANAGED ]&quot;/&gt;</span><br></pre></td></tr></table></figure></li>
+<li><p>子元素节点：数据源（dataSource）  </p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="mappers元素"><a href="#mappers元素" class="headerlink" title="mappers元素"></a>mappers元素</h3><p> <strong>mappers</strong>  </p>
+<ul>
+<li> 映射器 : 定义映射SQL语句文件 </li>
+<li>既然 MyBatis 的行为其他元素已经配置完了，我们现在就要定义 SQL 映射语句了。但是首先我们需要 告诉 MyBatis 到哪里去找到这些语句。Java 在自动查找这方面没有提供一个很好的方法，所以最佳的方 式是告诉 MyBatis 到哪里去找映射文件。你可以使用相对于类路径的资源引用， 或完全限定资源定位符 （包括 file:/// 的 URL），或类名和包名等。映射器是MyBatis中最核心的组件之一，在MyBatis 3之 前，只支持xml映射器，即：所有的SQL语句都必须在xml文件中配置。而从MyBatis 3开始，还支持接口 映射器，这种映射器方式允许以Java代码的方式注解定义SQL语句，非常简洁。 </li>
+</ul>
+<p> <strong>引入资源方式</strong> </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;!-- 使用相对于类路径的资源引用 --&gt;</span><br><span class="line">&lt;mappers&gt;</span><br><span class="line">&lt;mapper resource=&quot;org/mybatis/builder/PostMapper.xml&quot;/&gt;</span><br><span class="line">&lt;/mappers&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;!-- 使用完全限定资源定位符（URL） --&gt;</span><br><span class="line">&lt;mappers&gt;</span><br><span class="line">&lt;mapper url=&quot;file:///var/mappers/AuthorMapper.xml&quot;/&gt;</span><br><span class="line">&lt;/mappers&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;!--</span><br><span class="line">使用映射器接口实现类的完全限定类名</span><br><span class="line">需要配置文件名称和接口名称一致，并且位于同一目录下</span><br><span class="line">--&gt;</span><br><span class="line">&lt;mappers&gt;</span><br><span class="line">&lt;mapper class=&quot;org.mybatis.builder.AuthorMapper&quot;/&gt;</span><br><span class="line">&lt;/mappers&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;!--</span><br><span class="line">将包内的映射器接口实现全部注册为映射器</span><br><span class="line">但是需要配置文件名称和接口名称一致，并且位于同一目录下</span><br><span class="line">--&gt;</span><br><span class="line">&lt;mappers&gt;</span><br><span class="line">&lt;package name=&quot;org.mybatis.builder&quot;/&gt;</span><br><span class="line">&lt;/mappers&gt;</span><br></pre></td></tr></table></figure>
+
+<p> <strong>Mapper文件</strong> </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span><br><span class="line">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;</span><br><span class="line">&lt;mapper namespace=&quot;com.kuang.mapper.UserMapper&quot;&gt;</span><br><span class="line">&lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li> namespace中文意思：命名空间，作用如下： </li>
+<li> namespace的命名必须跟某个接口同名 </li>
+<li>接口中的方法与映射文件中sql语句id应该一一对应 </li>
+<li><ol>
+<li>namespace和子元素的id联合保证唯一 , 区别不同的mapper </li>
+<li>绑定DAO接口</li>
+<li>namespace命名规则 : 包名+类名  </li>
+</ol>
+</li>
+</ul>
+<p> MyBatis 的真正强大在于它的映射语句，这是它的魔力所在。由于它的异常强大，映射器的 XML 文件就显 得相对简单。如果拿它跟具有相同功能的 JDBC 代码进行对比，你会立即发现省掉了将近 95% 的代码。 MyBatis 为聚焦于 SQL 而构建，以尽可能地为你减少麻烦。 </p>
+<h3 id="Properties优化"><a href="#Properties优化" class="headerlink" title="Properties优化"></a>Properties优化</h3><p> 数据库这些属性都是可外部配置且可动态替换的，既可以在典型的 Java 属性文件中配置，亦可通过 properties 元素的子元素来传递。具体的官方文档 </p>
+<p>我们来优化我们的配置文件 </p>
+<p>第一步 ; 在资源目录下新建一个db.properties  </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">driver=com.mysql.jdbc.Driver</span><br><span class="line">url=jdbc:mysql://localhost:3306/mybatis?useSSL=true&amp;useUnicode=true&amp;characterEncoding=utf8</span><br><span class="line">username=root</span><br><span class="line">password=123456</span><br></pre></td></tr></table></figure>
+
+<p> 第二步 : 将文件导入properties 配置文件 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">&lt;!--导入properties文件--&gt;</span><br><span class="line">&lt;properties resource=&quot;db.properties&quot;/&gt;</span><br><span class="line">&lt;environments default=&quot;development&quot;&gt;</span><br><span class="line">&lt;environment id=&quot;development&quot;&gt;</span><br><span class="line">&lt;transactionManager type=&quot;JDBC&quot;/&gt;</span><br><span class="line">&lt;dataSource type=&quot;POOLED&quot;&gt;</span><br><span class="line">&lt;property name=&quot;driver&quot; value=&quot;$&#123;driver&#125;&quot;/&gt;</span><br><span class="line">&lt;property name=&quot;url&quot; value=&quot;$&#123;url&#125;&quot;/&gt;</span><br><span class="line">&lt;property name=&quot;username&quot; value=&quot;$&#123;username&#125;&quot;/&gt;</span><br><span class="line">&lt;property name=&quot;password&quot; value=&quot;$&#123;password&#125;&quot;/&gt;</span><br><span class="line">&lt;/dataSource&gt;</span><br><span class="line">&lt;/environment&gt;</span><br><span class="line">&lt;/environments&gt;</span><br><span class="line">&lt;mappers&gt;</span><br><span class="line">&lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt;</span><br><span class="line">&lt;/mappers&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 更多操作，可以查看官方文档！【演示带领学习】 </p>
+<ul>
+<li> 配置文件优先级问题 </li>
+<li>新特性：使用占位符 </li>
+</ul>
+<h3 id="typeAliases优化"><a href="#typeAliases优化" class="headerlink" title="typeAliases优化"></a>typeAliases优化</h3><p> 类型别名是为 Java 类型设置一个短的名字。它只和 XML 配置有关，存在的意义仅在于用来减少类完全限定 名的冗余。  </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;!--配置别名,注意顺序--&gt;</span><br><span class="line">&lt;typeAliases&gt;</span><br><span class="line">&lt;typeAlias type=&quot;com.kuang.pojo.User&quot; alias=&quot;User&quot;/&gt;</span><br><span class="line">&lt;/typeAliases&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 当这样配置时， User 可以用在任何使用 com.kuang.pojo.User 的地方。 </p>
+<p>也可以指定一个包名，MyBatis 会在包名下面搜索需要的 Java Bean，比如: </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;typeAliases&gt;</span><br><span class="line">&lt;package name=&quot;com.kuang.pojo&quot;/&gt;</span><br><span class="line">&lt;/typeAliases&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 每一个在包 com.kuang.pojo 中的 Java Bean，在没有注解的情况下，会使用 Bean 的首字母小写的非限定 类名来作为它的别名。 </p>
+<p>若有注解，则别名为其注解值。见下面的例子： </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Alias(&quot;user&quot;)</span><br><span class="line">public class User &#123;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 去官网查看一下Mybatis默认的一些类型别名！ </p>
+<h3 id="其他配置浏览"><a href="#其他配置浏览" class="headerlink" title="其他配置浏览"></a>其他配置浏览</h3><p> <strong>设置</strong> </p>
+<ul>
+<li><p> 设置（settings）相关 =&gt; 查看帮助文档 </p>
+</li>
+<li><p>懒加载 </p>
+</li>
+<li><p>日志实现 </p>
+</li>
+<li><p>缓存开启关闭</p>
+</li>
+<li><p> 一个配置完整的 settings 元素的示例如下：  </p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;settings&gt;</span><br><span class="line">&lt;setting name=&quot;cacheEnabled&quot; value=&quot;true&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;lazyLoadingEnabled&quot; value=&quot;true&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;multipleResultSetsEnabled&quot; value=&quot;true&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;useColumnLabel&quot; value=&quot;true&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;useGeneratedKeys&quot; value=&quot;false&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;autoMappingBehavior&quot; value=&quot;PARTIAL&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;autoMappingUnknownColumnBehavior&quot; value=&quot;WARNING&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;defaultExecutorType&quot; value=&quot;SIMPLE&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;defaultStatementTimeout&quot; value=&quot;25&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;defaultFetchSize&quot; value=&quot;100&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;safeRowBoundsEnabled&quot; value=&quot;false&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;false&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;localCacheScope&quot; value=&quot;SESSION&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;jdbcTypeForNull&quot; value=&quot;OTHER&quot;/&gt;</span><br><span class="line">&lt;setting name=&quot;lazyLoadTriggerMethods&quot; value=&quot;equals,clone,hashCode,toString&quot;/&gt;</span><br><span class="line">&lt;/settings&gt;</span><br></pre></td></tr></table></figure>
+
+<p> <strong>类型处理器</strong> </p>
+<ul>
+<li> 无论是 MyBatis 在预处理语句（PreparedStatement）中设置一个参数时，还是从结果集中取出一个值 时， 都会用类型处理器将获取的值以合适的方式转换成 Java 类型。</li>
+<li> 你可以重写类型处理器或创建你自己的类型处理器来处理不支持的或非标准的类型。【了解即可】 </li>
+</ul>
+<p> <strong>对象工厂</strong> </p>
+<ul>
+<li> MyBatis 每次创建结果对象的新实例时，它都会使用一个对象工厂（ObjectFactory）实例来完成。 </li>
+<li>默认的对象工厂需要做的仅仅是实例化目标类，要么通过默认构造方法，要么在参数映射存在的时候通 过有参构造方法来实例化。 </li>
+<li>如果想覆盖对象工厂的默认行为，则可以通过创建自己的对象工厂来实现。【了解即可】 </li>
+</ul>
+<h3 id="生命周期和作用域"><a href="#生命周期和作用域" class="headerlink" title="生命周期和作用域"></a>生命周期和作用域</h3><p> <strong>作用域（Scope）和生命周期</strong> </p>
+<p> 理解我们目前已经讨论过的不同作用域和生命周期类是至关重要的，因为错误的使用会导致非常严重的并发 问题。 </p>
+<p>我们可以先画一个流程图，分析一下Mybatis的执行过程！  </p>
+<p><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/06/27/jVm6oV.png" alt="1656254349159"></p>
+<p> <strong>作用域理解</strong> </p>
+<ul>
+<li> SqlSessionFactoryBuilder 的作用在于创建 SqlSessionFactory，创建成功后， SqlSessionFactoryBuilder 就失去了作用，所以它只能存在于创建 SqlSessionFactory 的方法中，而不要 让其长期存在。因此 SqlSessionFactoryBuilder 实例的最佳作用域是方法作用域（也就是局部方 法变量）。 </li>
+<li>SqlSessionFactory 可以被认为是一个数据库连接池，它的作用是创建 SqlSession 接口对象。因为 MyBatis 的本质就是 Java 对数据库的操作，所以 SqlSessionFactory 的生命周期存在于整个 MyBatis 的 应用之中，所以一旦创建了 SqlSessionFactory，就要长期保存它，直至不再使用 MyBatis 应用，所以 可以认为 SqlSessionFactory 的生命周期就等同于 MyBatis 的应用周期。 </li>
+<li>由于 SqlSessionFactory 是一个对数据库的连接池，所以它占据着数据库的连接资源。如果创建多个 SqlSessionFactory，那么就存在多个数据库连接池，这样不利于对数据库资源的控制，也会导致数据库 连接资源被消耗光，出现系统宕机等情况，所以尽量避免发生这样的情况。</li>
+<li> 因此在一般的应用中我们往往希望 SqlSessionFactory 作为一个单例，让它在应用中被共享。所以说 SqlSessionFactory 的最佳作用域是应用作用域。 </li>
+<li>如果说 SqlSessionFactory 相当于数据库连接池，那么 SqlSession 就相当于一个数据库连接 （Connection 对象），你可以在一个事务里面执行多条 SQL，然后通过它的 commit、rollback 等方 法，提交或者回滚事务。所以它应该存活在一个业务请求中，处理完整个请求后，应该关闭这条连接， 让它归还给 SqlSessionFactory，否则数据库资源就很快被耗费精光，系统就会瘫痪，所以用 try…catch…finally… 语句来保证其正确关闭。 </li>
+<li>所以 SqlSession 的最佳的作用域是请求或方法作用域。  </li>
+</ul>
+<p><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/06/27/jVmRWF.png" alt="1656254491306"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">ChenNuo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://chennuo252.top/2022/05/10/MyBatis-02%EF%BC%9ACRUD%E6%93%8D%E4%BD%9C%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90/">http://chennuo252.top/2022/05/10/MyBatis-02%EF%BC%9ACRUD%E6%93%8D%E4%BD%9C%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://chennuo252.top" target="_blank">ChenNuo-Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Mybatis%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Mybatis的学习笔记</a></div><div class="post_share"><div class="social-share" data-image="https://s1.ax1x.com/2022/05/08/OlvVlq.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/05/10/MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5/"><img class="prev-cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/Olvkfs.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">MyBatis-03：ResultMap及分页</div></div></a></div><div class="next-post pull-right"><a href="/2022/05/10/MyBatis-01%EF%BC%9A%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%A8%8B%E5%BA%8F/"><img class="next-cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MyBatis-01：第一个程序</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/05/10/MyBatis-01%EF%BC%9A%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%A8%8B%E5%BA%8F/" title="MyBatis-01：第一个程序"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-01：第一个程序</div></div></a></div><div><a href="/2022/05/10/MyBatis-05%EF%BC%9A%E4%B8%80%E5%AF%B9%E5%A4%9A%E5%92%8C%E5%A4%9A%E5%AF%B9%E4%B8%80%E5%A4%84%E7%90%86/" title="MyBatis-05：一对多和多对一处理"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvikQ.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-05：一对多和多对一处理</div></div></a></div><div><a href="/2022/05/10/MyBatis-04%EF%BC%9A%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/" title="MyBatis-04：使用注解开发"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvikQ.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-04：使用注解开发</div></div></a></div><div><a href="/2022/05/10/MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5/" title="MyBatis-03：ResultMap及分页"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/Olvkfs.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-03：ResultMap及分页</div></div></a></div><div><a href="/2022/05/10/MyBatis-06%EF%BC%9A%E5%8A%A8%E6%80%81SQL/" title="MyBatis-06：动态SQL"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-06：动态SQL</div></div></a></div><div><a href="/2022/05/10/MyBatis-07%EF%BC%9A%E7%BC%93%E5%AD%98/" title="MyBatis-07：缓存"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-07：缓存</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">ChenNuo</div><div class="author-info__description">博客因兴趣诞生,在不断完善中</div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">25</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ChenNuo252"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/ChenNuo252" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:2824846062@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="tencent://AddContact/?fromId=45&amp;fromSubId=1&amp;subcmd=all&amp;uin=2824846062&amp;website=www.oicqzone.com" target="_blank" title="QQ"><i class="fab fa-qq"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MyBatis-02%EF%BC%9ACRUD%E6%93%8D%E4%BD%9C%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">MyBatis-02：CRUD操作及配置解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#namespace"><span class="toc-number">1.0.1.</span> <span class="toc-text">namespace</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#select"><span class="toc-number">1.0.2.</span> <span class="toc-text">select</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#insert"><span class="toc-number">1.0.3.</span> <span class="toc-text">insert</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#update"><span class="toc-number">1.0.4.</span> <span class="toc-text">update</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#delete"><span class="toc-number">1.0.5.</span> <span class="toc-text">delete</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%80%83%E9%A2%98"><span class="toc-number">1.0.6.</span> <span class="toc-text">思考题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text">配置解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">1.1.1.</span> <span class="toc-text">核心配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#environments%E5%85%83%E7%B4%A0"><span class="toc-number">1.1.2.</span> <span class="toc-text">environments元素</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mappers%E5%85%83%E7%B4%A0"><span class="toc-number">1.1.3.</span> <span class="toc-text">mappers元素</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Properties%E4%BC%98%E5%8C%96"><span class="toc-number">1.1.4.</span> <span class="toc-text">Properties优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#typeAliases%E4%BC%98%E5%8C%96"><span class="toc-number">1.1.5.</span> <span class="toc-text">typeAliases优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E9%85%8D%E7%BD%AE%E6%B5%8F%E8%A7%88"><span class="toc-number">1.1.6.</span> <span class="toc-text">其他配置浏览</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%92%8C%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="toc-number">1.1.7.</span> <span class="toc-text">生命周期和作用域</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/MyBatis-07%EF%BC%9A%E7%BC%93%E5%AD%98/" title="MyBatis-07：缓存"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MyBatis-07：缓存"/></a><div class="content"><a class="title" href="/2022/05/10/MyBatis-07%EF%BC%9A%E7%BC%93%E5%AD%98/" title="MyBatis-07：缓存">MyBatis-07：缓存</a><time datetime="2022-05-10T13:36:29.000Z" title="发表于 2022-05-10 21:36:29">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/MyBatis-06%EF%BC%9A%E5%8A%A8%E6%80%81SQL/" title="MyBatis-06：动态SQL"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MyBatis-06：动态SQL"/></a><div class="content"><a class="title" href="/2022/05/10/MyBatis-06%EF%BC%9A%E5%8A%A8%E6%80%81SQL/" title="MyBatis-06：动态SQL">MyBatis-06：动态SQL</a><time datetime="2022-05-10T13:36:28.000Z" title="发表于 2022-05-10 21:36:28">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/MyBatis-05%EF%BC%9A%E4%B8%80%E5%AF%B9%E5%A4%9A%E5%92%8C%E5%A4%9A%E5%AF%B9%E4%B8%80%E5%A4%84%E7%90%86/" title="MyBatis-05：一对多和多对一处理"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvikQ.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MyBatis-05：一对多和多对一处理"/></a><div class="content"><a class="title" href="/2022/05/10/MyBatis-05%EF%BC%9A%E4%B8%80%E5%AF%B9%E5%A4%9A%E5%92%8C%E5%A4%9A%E5%AF%B9%E4%B8%80%E5%A4%84%E7%90%86/" title="MyBatis-05：一对多和多对一处理">MyBatis-05：一对多和多对一处理</a><time datetime="2022-05-10T13:36:27.000Z" title="发表于 2022-05-10 21:36:27">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/MyBatis-04%EF%BC%9A%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/" title="MyBatis-04：使用注解开发"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvikQ.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MyBatis-04：使用注解开发"/></a><div class="content"><a class="title" href="/2022/05/10/MyBatis-04%EF%BC%9A%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/" title="MyBatis-04：使用注解开发">MyBatis-04：使用注解开发</a><time datetime="2022-05-10T13:36:26.000Z" title="发表于 2022-05-10 21:36:26">2022-05-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/10/MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5/" title="MyBatis-03：ResultMap及分页"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/Olvkfs.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MyBatis-03：ResultMap及分页"/></a><div class="content"><a class="title" href="/2022/05/10/MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5/" title="MyBatis-03：ResultMap及分页">MyBatis-03：ResultMap及分页</a><time datetime="2022-05-10T13:36:25.000Z" title="发表于 2022-05-10 21:36:25">2022-05-10</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s1.ax1x.com/2022/05/08/OlvVlq.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By ChenNuo</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="/img/loading.gif" data-original="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="/img/loading.gif" data-original="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://github.com/"><img src="/img/loading.gif" data-original="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Github托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="/img/loading.gif" data-original="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo-pi-one.vercel.app/',
+      region: 'ap-shanghai',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.vemoji)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-pi-one.vercel.app/',
+      region: 'ap-shanghai',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      document.getElementById('twikoo-count').innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start -->
+  <script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/hexo-github-calendar@1.21/hexo_githubcalendar.js"></script>
+  <script data-pjax>
+        function GithubCalendarConfig(){
+            var git_githubapiurl ="https://python-github-calendar-api.vercel.app/api?ChenNuo252";
+            var git_color =['#ebedf0', '#fdcdec', '#fc9bd9', '#fa6ac5', '#f838b2', '#f5089f', '#c4067e', '#92055e', '#540336', '#48022f', '#30021f'];
+            var git_user ="ChenNuo252";
+            var parent_div_git = document.getElementById('recent-posts');
+            var git_div_html = '<div class="recent-post-item" style="width:100%;height:auto;padding:10px;"><div id="github_loading" style="width:10%;height:100%;margin:0 auto;display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 50 50" style="enable-background:new 0 0 50 50" xml:space="preserve"><path fill="#d0d0d0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z" transform="rotate(275.098 25 25)"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg></div><div id="github_container"></div></div>';
+            if(parent_div_git && location.pathname =='/'){
+                console.log('已挂载github calendar')
+                // parent_div_git.innerHTML=git_div_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",git_div_html) // 有报错，但不影响使用(支持pjax跳转)
+            };
+            GithubCalendar(git_githubapiurl,git_color,git_user)
+        }
+        if(document.getElementById('recent-posts')){
+            GithubCalendarConfig()
+        }
+    </script>
+    <style>#github_container{min-height:280px}@media screen and (max-width:650px) {#github_container{background-image:;min-height:0px}}</style>
+    <style></style><script data-pjax>
+  function card_artitalk_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-shuo"><div class="card-content" style="height:auto;min-height:280px;"><div class="item-headline"><i class="fas fa-comments"></i><span><a href="/artitalk/" title="artitalk page link">碎碎念</a></span><a id="cardVisual" style="cursor:pointer;float:right" onclick="cardVisual()">编辑</a></div><div id="artitalk_main" style="width:100%;height:100%;padding:1px"></div></div></div>';
+    console.log('已挂载card_artitalk');
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html);
+    (()=>{
+      const init = () => {
+        new Artitalk(Object.assign({
+          appId: 'kKQRNJPKCYo7wK9QC4L9NP0J-MdYXbMMI',
+          appKey: '2Ml0sIXU6Qiwgl1AdbV1VUSk',
+        }, {"serverURL":"https://kKQRNJPKCYo7wK9QC4L9NP0J-MdYXbMMI.api.lncldglobal.com","lang":"zh","pageSize":1,"color1":"#49b1f5","color2":"#00c4b6","atEmoji":{"Mafumafu1":"https://cdn.jsdelivr.net/gh/GamerNoTitle/ValineCDN@master/Mafumafu/199749454.png","Mafumafu2":"https://cdn.jsdelivr.net/gh/GamerNoTitle/ValineCDN@master/Mafumafu/199749455.png"}} ))
+      }
+      if (typeof Artitalk === 'function') {
+        init()
+      } else {
+        getScript('https://npm.elemecdn.com/artitalk').then(init)
+      }
+    })()
+    }
+  var elist = '/artitalk/,/posts/'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    card_artitalk_injector_config();
+  }
+  else if (epage === cpage){
+    card_artitalk_injector_config();
+  }
+  </script><script async src="https://npm.elemecdn.com/hexo-butterfly-artitalk-pro/lib/card_visual.js"></script><script data-pjax src="https://npm.elemecdn.com/hexo-filter-gitcalendar/lib/gitcalendar.js"></script><script data-pjax>
+  function gitcalendar_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<div class="recent-post-item" style="width:100%;height:auto;padding:10px;"><style>#git_container{min-height: 280px}@media screen and (max-width:650px) {#git_container{min-height: 0px}}</style><div id="git_loading" style="width:10%;height:100%;margin:0 auto;display: block;"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50" xml:space="preserve"><path fill="#d0d0d0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z" transform="rotate(275.098 25 25)"><animatetransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animatetransform></path></svg><style>#git_container{display: none;}</style></div><div id="git_container"></div></div>';
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      console.log('已挂载gitcalendar')
+      }
+
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+        gitcalendar_injector_config()
+        GitCalendarInit("http:www.chennuo252.top/api?ChenNuo252",['#e4dfd7', '#f9f4dc', '#f7e8aa', '#f7e8aa', '#f8df72', '#fcd217', '#fcc515', '#f28e16', '#fb8b05', '#d85916', '#f43e06'],'ChenNuo252')
+    }
+  </script><script data-pjax>
+  function butterfly_clock_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src="/img/loading.gif" data-original="/img/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_injector_config();
+  }
+  </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax src="https://unpkg.zhimg.com/hexo-butterfly-clock/lib/clock.min.js"></script><!-- hexo injector body_end end --><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=o;var e=n.imageLazyLoadSetting.isSPA,i=n.imageLazyLoadSetting.preloadRatio||1,r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function o(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight*i||document.documentElement.clientHeight*i)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}o(),n.addEventListener("scroll",function(){var t,e;t=o,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>
