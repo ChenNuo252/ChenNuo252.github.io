@@ -1,0 +1,465 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>MyBatis-03：ResultMap及分页 | ChenNuo-Blog</title><meta name="keywords" content="Mybatis的学习笔记"><meta name="author" content="ChenNuo"><meta name="copyright" content="ChenNuo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="MyBatis-03：ResultMap及分页查询为null问题 要解决的问题：属性名和字段名不一致  环境：新建一个项目，将之前的项目拷贝过来    查看之前的数据库的字段名         Java中的实体类设计      public class User &amp;#123;private int id; &#x2F;&#x2F;idprivate String name; &#x2F;&#x2F;姓名private String pa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyBatis-03：ResultMap及分页">
+<meta property="og:url" content="http://chennuo252.top/2022/05/10/Mybatis/MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5/index.html">
+<meta property="og:site_name" content="ChenNuo-Blog">
+<meta property="og:description" content="MyBatis-03：ResultMap及分页查询为null问题 要解决的问题：属性名和字段名不一致  环境：新建一个项目，将之前的项目拷贝过来    查看之前的数据库的字段名         Java中的实体类设计      public class User &amp;#123;private int id; &#x2F;&#x2F;idprivate String name; &#x2F;&#x2F;姓名private String pa">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg">
+<meta property="article:published_time" content="2022-05-10T13:36:25.000Z">
+<meta property="article:modified_time" content="2022-06-27T07:03:09.162Z">
+<meta property="article:author" content="ChenNuo">
+<meta property="article:tag" content="Mybatis的学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://chennuo252.top/2022/05/10/Mybatis/MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MyBatis-03：ResultMap及分页',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-27 15:03:09'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"  media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-artitalk-pro/lib/card.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://unpkg.zhimg.com/hexo-butterfly-clock/lib/clock.min.css" /><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-filter-gitcalendar/lib/gitcalendar.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/share/"><i class="fa-fw fa fa-heartbeat"></i><span> 生活</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://s1.ax1x.com/2022/05/08/OlvnmT.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">ChenNuo-Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/share/"><i class="fa-fw fa fa-heartbeat"></i><span> 生活</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">MyBatis-03：ResultMap及分页</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-05-10T13:36:25.000Z" title="发表于 2022-05-10 21:36:25">2022-05-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-27T07:03:09.162Z" title="更新于 2022-06-27 15:03:09">2022-06-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java/">Java</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="MyBatis-03：ResultMap及分页"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="MyBatis-03：ResultMap及分页"><a href="#MyBatis-03：ResultMap及分页" class="headerlink" title="MyBatis-03：ResultMap及分页"></a>MyBatis-03：ResultMap及分页</h1><h3 id="查询为null问题"><a href="#查询为null问题" class="headerlink" title="查询为null问题"></a>查询为null问题</h3><p> 要解决的问题：属性名和字段名不一致 </p>
+<p>环境：新建一个项目，将之前的项目拷贝过来 </p>
+<ol>
+<li> 查看之前的数据库的字段名 </li>
+</ol>
+<p>   <img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/06/27/jVmyd0.png" alt="1656254652835"></p>
+<ol start="2">
+<li> Java中的实体类设计 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class User &#123;</span><br><span class="line">private int id; //id</span><br><span class="line">private String name; //姓名</span><br><span class="line">private String password; //密码和数据库不一样！</span><br><span class="line">//构造</span><br><span class="line">//set/get</span><br><span class="line">//toString()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 接口 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//根据id查询用户</span><br><span class="line">User selectUserById(int id);</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li> mapper映射文件  </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;select id=&quot;selectUserById&quot; resultType=&quot;user&quot;&gt;</span><br><span class="line">select * from user where id = #&#123;id&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li> 测试 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void testSelectUserById() &#123;</span><br><span class="line">SqlSession session = MybatisUtils.getSession(); //获取SqlSession连接</span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">User user = mapper.selectUserById(1);</span><br><span class="line">System.out.println(user);</span><br><span class="line">session.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 结果: </p>
+<ul>
+<li><p>User{id=1, name=’狂神’, password=’null’} </p>
+</li>
+<li><p>查询出来发现 password 为空 . 说明出现了问题！ </p>
+</li>
+</ul>
+<p>分析： </p>
+<ul>
+<li><p>select * from user where id = #{id} 可以看做 </p>
+<p>select id,name,pwd from user where id = #{id} </p>
+<p>mybatis会根据这些查询的列名(会将列名转化为小写,数据库不区分大小写) , 去对应的实体类中查找相应 列名的set方法设值 , 由于找不到setPwd() , 所以password返回null ; 【自动映射】 </p>
+</li>
+</ul>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p> 方案一：为列名指定别名 , 别名和java实体类的属性名一致 .  </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;select id=&quot;selectUserById&quot; resultType=&quot;User&quot;&gt;</span><br><span class="line">select id , name , pwd as password from user where id = #&#123;id&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 方案二：使用结果集映射-&gt;ResultMap 【推荐】 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;resultMap id=&quot;UserMap&quot; type=&quot;User&quot;&gt;</span><br><span class="line">&lt;!-- id为主键 --&gt;</span><br><span class="line">&lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;</span><br><span class="line">&lt;!-- column是数据库表的列名 , property是对应实体类的属性名 --&gt;</span><br><span class="line">&lt;result column=&quot;name&quot; property=&quot;name&quot;/&gt;</span><br><span class="line">&lt;result column=&quot;pwd&quot; property=&quot;password&quot;/&gt;</span><br><span class="line">&lt;/resultMap&gt;</span><br><span class="line">&lt;select id=&quot;selectUserById&quot; resultMap=&quot;UserMap&quot;&gt;</span><br><span class="line">select id , name , pwd from user where id = #&#123;id&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="ResultMap"><a href="#ResultMap" class="headerlink" title="ResultMap"></a>ResultMap</h3><p> <strong>自动映射</strong> </p>
+<ul>
+<li> resultMap 元素是 MyBatis 中最重要最强大的元素。它可以让你从 90% 的 JDBC ResultSets 数据提 取代码中解放出来。 </li>
+<li>实际上，在为一些比如连接的复杂语句编写映射代码的时候，一份 resultMap 能够代替实现同等功能 的长达数千行的代码。 </li>
+<li>ResultMap 的设计思想是，对于简单的语句根本不需要配置显式的结果映射，而对于复杂一点的语句只 需要描述它们的关系就行了。 </li>
+</ul>
+<p> 你已经见过简单映射语句的示例了，但并没有显式指定 resultMap 。比如：  </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;select id=&quot;selectUserById&quot; resultType=&quot;map&quot;&gt;</span><br><span class="line">select id , name , pwd</span><br><span class="line">from user</span><br><span class="line">where id = #&#123;id&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 上述语句只是简单地将所有的列映射到 HashMap 的键上，这由 resultType 属性指定。虽然在大部分情况 下都够用，但是 HashMap 不是一个很好的模型。你的程序更可能会使用 JavaBean 或 POJO（Plain Old Java Objects，普通老式 Java 对象）作为模型。 </p>
+<p>ResultMap 最优秀的地方在于，虽然你已经对它相当了解了，但是根本就不需要显式地用到他们。  </p>
+<p> <strong>手动映射</strong>  </p>
+<ol>
+<li> 返回值类型为resultMap </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;select id=&quot;selectUserById&quot; resultMap=&quot;UserMap&quot;&gt;</span><br><span class="line">select id , name , pwd from user where id = #&#123;id&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> 编写resultMap，实现手动映射！  </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;resultMap id=&quot;UserMap&quot; type=&quot;User&quot;&gt;</span><br><span class="line">&lt;!-- id为主键 --&gt;</span><br><span class="line">&lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;</span><br><span class="line">&lt;!-- column是数据库表的列名 , property是对应实体类的属性名 --&gt;</span><br><span class="line">&lt;result column=&quot;name&quot; property=&quot;name&quot;/&gt;</span><br><span class="line">&lt;result column=&quot;pwd&quot; property=&quot;password&quot;/&gt;</span><br><span class="line">&lt;/resultMap&gt;</span><br></pre></td></tr></table></figure>
+
+<pre><code>如果世界总是这么简单就好了。但是肯定不是的，数据库中，存在一对多，多对一的情况，我们之后会使用 到一些高级的结果集映射，association，collection这些，我们将在之后讲解，今天你们需要把这些知识都消 化掉才是最重要的！理解结果集映射的这个概念！ 
+</code></pre>
+<h2 id="分页的几种方式"><a href="#分页的几种方式" class="headerlink" title="分页的几种方式"></a>分页的几种方式</h2><h3 id="日志工厂"><a href="#日志工厂" class="headerlink" title="日志工厂"></a>日志工厂</h3><p> 思考：我们在测试SQL的时候，要是能够在控制台输出 SQL 的话，是不是就能够有更快的排错效率？ </p>
+<p>如果一个 数据库相关的操作出现了问题，我们可以根据输出的SQL语句快速排查问题。 </p>
+<p>对于以往的开发过程，我们会经常使用到debug模式来调节，跟踪我们的代码执行过程。但是现在使用 Mybatis是基于接口，配置文件的源代码执行过程。因此，我们必须选择日志工具来作为我们开发，调节程 序的工具。 </p>
+<p>Mybatis内置的日志工厂提供日志功能，具体的日志实现有以下几种工具： </p>
+<ul>
+<li> SLF4J </li>
+<li>Apache Commons Logging </li>
+<li>Log4j 2 </li>
+<li>Log4j </li>
+<li>JDK logging </li>
+</ul>
+<p> 具体选择哪个日志实现工具由MyBatis的内置日志工厂确定。它会使用最先找到的（按上文列举的顺序查 找）。如果一个都未找到，日志功能就会被禁用。 </p>
+<h3 id="标准日志实现"><a href="#标准日志实现" class="headerlink" title="标准日志实现"></a>标准日志实现</h3><p> 指定 MyBatis 应该使用哪个日志记录实现。如果此设置不存在，则会自动发现日志记录实现。  </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;settings&gt;</span><br><span class="line">&lt;setting name=&quot;logImpl&quot; value=&quot;STDOUT_LOGGING&quot;/&gt;</span><br><span class="line">&lt;/settings&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 测试，可以看到控制台有大量的输出！我们可以通过这些输出来判断程序到底哪里出了Bug </p>
+<h3 id="Log4j"><a href="#Log4j" class="headerlink" title="Log4j"></a>Log4j</h3><p> 简介：  </p>
+<ul>
+<li> Log4j是Apache的一个开源项目 </li>
+<li>通过使用Log4j，我们可以控制日志信息输送的目的地：控制台，文本，GUI组件…. </li>
+<li>我们也可以控制每一条日志的输出格式； </li>
+<li>通过定义每一条日志信息的级别，我们能够更加细致地控制日志的生成过程。最令人感兴趣的就是，这 些可以通过一个配置文件来灵活地进行配置，而不需要修改应用的代码。  </li>
+</ul>
+<p> 使用步骤： </p>
+<ol>
+<li> 导入log4j的包 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">&lt;groupId&gt;log4j&lt;/groupId&gt;</span><br><span class="line">&lt;artifactId&gt;log4j&lt;/artifactId&gt;</span><br><span class="line">&lt;version&gt;1.2.17&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> 配置文件编写  </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#将等级为DEBUG的日志信息输出到console和file这两个目的地，console和file的定义在下面的代码</span><br><span class="line">log4j.rootLogger=DEBUG,console,file</span><br><span class="line">#控制台输出的相关设置</span><br><span class="line">log4j.appender.console = org.apache.log4j.ConsoleAppender</span><br><span class="line">log4j.appender.console.Target = System.out</span><br><span class="line">log4j.appender.console.Threshold=DEBUG</span><br><span class="line">log4j.appender.console.layout = org.apache.log4j.PatternLayout</span><br><span class="line">log4j.appender.console.layout.ConversionPattern=[%c]-%m%n</span><br><span class="line">#文件输出的相关设置</span><br><span class="line">log4j.appender.file = org.apache.log4j.RollingFileAppender</span><br><span class="line">log4j.appender.file.File=./log/kuang.log</span><br><span class="line">log4j.appender.file.MaxFileSize=10mb</span><br><span class="line">log4j.appender.file.Threshold=DEBUG</span><br><span class="line">log4j.appender.file.layout=org.apache.log4j.PatternLayout</span><br><span class="line">log4j.appender.file.layout.ConversionPattern=[%p][%d&#123;yy-MM-dd&#125;][%c]%m%n</span><br><span class="line">#日志输出级别</span><br><span class="line">log4j.logger.org.mybatis=DEBUG</span><br><span class="line">log4j.logger.java.sql=DEBUG</span><br><span class="line">log4j.logger.java.sql.Statement=DEBUG</span><br><span class="line">log4j.logger.java.sql.ResultSet=DEBUG</span><br><span class="line">log4j.logger.java.sql.PreparedStatement=DEBUG</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> setting设置日志实现  </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;settings&gt;</span><br><span class="line">&lt;setting name=&quot;logImpl&quot; value=&quot;LOG4J&quot;/&gt;</span><br><span class="line">&lt;/settings&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li> 在程序中使用Log4j进行输出！ </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//注意导包：org.apache.log4j.Logger</span><br><span class="line">static Logger logger = Logger.getLogger(MyTest.class);</span><br><span class="line">@Test</span><br><span class="line">public void selectUser() &#123;</span><br><span class="line">logger.info(&quot;info：进入selectUser方法&quot;);</span><br><span class="line">logger.debug(&quot;debug：进入selectUser方法&quot;);</span><br><span class="line">logger.error(&quot;error: 进入selectUser方法&quot;);</span><br><span class="line">SqlSession session = MybatisUtils.getSession();</span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">List&lt;User&gt; users = mapper.selectUser();</span><br><span class="line">for (User user: users)&#123;</span><br><span class="line">System.out.println(user);</span><br><span class="line">&#125;</span><br><span class="line">session.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li> 测试，看控制台输出！ </li>
+</ol>
+<ul>
+<li> 使用Log4j 输出日志 </li>
+<li>可以看到还生成了一个日志的文件 【需要修改file的日志级别】  </li>
+</ul>
+<h3 id="limit实现分页"><a href="#limit实现分页" class="headerlink" title="limit实现分页"></a>limit实现分页</h3><p> <strong>思考：为什么需要分页？</strong> </p>
+<p>在学习mybatis等持久层框架的时候，会经常对数据进行增删改查操作，使用最多的是对数据库进行查询操 作，如果查询大量数据的时候，我们往往使用分页进行查询，也就是每次处理小部分数据，这样对数据库压 力就在可控范围内。 </p>
+<p><strong>使用Limit实现分页</strong> </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#语法</span><br><span class="line">SELECT * FROM table LIMIT stratIndex，pageSize</span><br><span class="line">SELECT * FROM table LIMIT 5,10; // 检索记录行 6-15</span><br><span class="line">#为了检索从某一个偏移量到记录集的结束所有的记录行，可以指定第二个参数为 -1：</span><br><span class="line">SELECT * FROM table LIMIT 95,-1; // 检索记录行 96-last.</span><br><span class="line">#如果只给定一个参数，它表示返回最大的记录行数目：</span><br><span class="line">SELECT * FROM table LIMIT 5; //检索前 5 个记录行</span><br><span class="line">#换句话说，LIMIT n 等价于 LIMIT 0,n。</span><br></pre></td></tr></table></figure>
+
+<p> 步骤： </p>
+<ol>
+<li> 修改Mapper文件 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;select id=&quot;selectUser&quot; parameterType=&quot;map&quot; resultType=&quot;user&quot;&gt;</span><br><span class="line">select * from user limit #&#123;startIndex&#125;,#&#123;pageSize&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>   Mapper接口，参数为map  </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//选择全部用户实现分页</span><br><span class="line">List&lt;User&gt; selectUser(Map&lt;String,Integer&gt; map);</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 在测试类中传入参数测试 </li>
+</ol>
+<ul>
+<li> 推断：起始位置 = （当前页面 - 1 ） * 页面大小 </li>
+</ul>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//分页查询 , 两个参数startIndex , pageSize</span><br><span class="line">@Test</span><br><span class="line">public void testSelectUser() &#123;</span><br><span class="line">SqlSession session = MybatisUtils.getSession();</span><br><span class="line">UserMapper mapper = session.getMapper(UserMapper.class);</span><br><span class="line">int currentPage = 1; //第几页</span><br><span class="line">int pageSize = 2; //每页显示几个</span><br><span class="line">Map&lt;String,Integer&gt; map = new HashMap&lt;String,Integer&gt;();</span><br><span class="line">map.put(&quot;startIndex&quot;,(currentPage-1)*pageSize);</span><br><span class="line">map.put(&quot;pageSize&quot;,pageSize);</span><br><span class="line">List&lt;User&gt; users = mapper.selectUser(map);</span><br><span class="line">for (User user: users)&#123;</span><br><span class="line">System.out.println(user);</span><br><span class="line">&#125;</span><br><span class="line">session.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="RowBounds分页"><a href="#RowBounds分页" class="headerlink" title="RowBounds分页"></a>RowBounds分页</h3><p> 我们除了使用Limit在SQL层面实现分页，也可以使用RowBounds在Java代码层面实现分页，当然此种方式 作为了解即可。我们来看下如何实现的！ </p>
+<p>步骤： </p>
+<ol>
+<li> mapper接口</li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//选择全部用户RowBounds实现分页</span><br><span class="line">List&lt;User&gt; getUserByRowBounds();</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> mapper文件 </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;select id=&quot;getUserByRowBounds&quot; resultType=&quot;user&quot;&gt;</span><br><span class="line">select * from user</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>测试类 </p>
+<p> 在这里，我们需要使用RowBounds类 </p>
+</li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void testUserByRowBounds() &#123;</span><br><span class="line">SqlSession session = MybatisUtils.getSession();</span><br><span class="line">int currentPage = 2; //第几页</span><br><span class="line">int pageSize = 2; //每页显示几个</span><br><span class="line">RowBounds rowBounds = new RowBounds((currentPage-1)*pageSize,pageSize);</span><br><span class="line">//通过session.**方法进行传递rowBounds，[此种方式现在已经不推荐使用了]</span><br><span class="line">List&lt;User&gt; users = session.selectList(&quot;com.kuang.mapper.UserMapper.getUserByRowBounds&quot;,</span><br><span class="line">null, rowBounds);</span><br><span class="line">for (User user: users)&#123;</span><br><span class="line">System.out.println(user);</span><br><span class="line">&#125;</span><br><span class="line">session.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>插件：</p>
+<p><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/06/27/jVm2JU.png" alt="1656255619546"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">ChenNuo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://chennuo252.top/2022/05/10/Mybatis/MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5/">http://chennuo252.top/2022/05/10/Mybatis/MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://chennuo252.top" target="_blank">ChenNuo-Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Mybatis%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">Mybatis的学习笔记</a></div><div class="post_share"><div class="social-share" data-image="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/05/10/Mybatis/MyBatis-04%EF%BC%9A%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/"><img class="prev-cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvEpn.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">MyBatis-04：使用注解开发</div></div></a></div><div class="next-post pull-right"><a href="/2022/05/10/Mybatis/MyBatis-02%EF%BC%9ACRUD%E6%93%8D%E4%BD%9C%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90/"><img class="next-cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvVlq.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MyBatis-02：CRUD操作及配置解析</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/05/10/Mybatis/MyBatis-01%EF%BC%9A%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%A8%8B%E5%BA%8F/" title="MyBatis-01：第一个程序"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvEpn.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-01：第一个程序</div></div></a></div><div><a href="/2022/05/10/Mybatis/MyBatis-06%EF%BC%9A%E5%8A%A8%E6%80%81SQL/" title="MyBatis-06：动态SQL"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvnmT.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-06：动态SQL</div></div></a></div><div><a href="/2022/05/10/Mybatis/MyBatis-07%EF%BC%9A%E7%BC%93%E5%AD%98/" title="MyBatis-07：缓存"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvZ60.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-07：缓存</div></div></a></div><div><a href="/2022/05/10/Mybatis/MyBatis-04%EF%BC%9A%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E5%BC%80%E5%8F%91/" title="MyBatis-04：使用注解开发"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvEpn.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-04：使用注解开发</div></div></a></div><div><a href="/2022/05/10/Mybatis/MyBatis-05%EF%BC%9A%E4%B8%80%E5%AF%B9%E5%A4%9A%E5%92%8C%E5%A4%9A%E5%AF%B9%E4%B8%80%E5%A4%84%E7%90%86/" title="MyBatis-05：一对多和多对一处理"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvikQ.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-05：一对多和多对一处理</div></div></a></div><div><a href="/2022/05/10/Mybatis/MyBatis-02%EF%BC%9ACRUD%E6%93%8D%E4%BD%9C%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90/" title="MyBatis-02：CRUD操作及配置解析"><img class="cover" src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvVlq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-10</div><div class="title">MyBatis-02：CRUD操作及配置解析</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/loading.gif" data-original="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">ChenNuo</div><div class="author-info__description">博客因兴趣诞生,在不断完善中</div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ChenNuo252"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/ChenNuo252" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:2824846062@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="tencent://AddContact/?fromId=45&amp;fromSubId=1&amp;subcmd=all&amp;uin=2824846062&amp;website=www.oicqzone.com" target="_blank" title="QQ"><i class="fab fa-qq"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MyBatis-03%EF%BC%9AResultMap%E5%8F%8A%E5%88%86%E9%A1%B5"><span class="toc-number">1.</span> <span class="toc-text">MyBatis-03：ResultMap及分页</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%B8%BAnull%E9%97%AE%E9%A2%98"><span class="toc-number">1.0.1.</span> <span class="toc-text">查询为null问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.0.2.</span> <span class="toc-text">解决方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ResultMap"><span class="toc-number">1.0.3.</span> <span class="toc-text">ResultMap</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E9%A1%B5%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="toc-number">1.1.</span> <span class="toc-text">分页的几种方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%B7%A5%E5%8E%82"><span class="toc-number">1.1.1.</span> <span class="toc-text">日志工厂</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%87%E5%87%86%E6%97%A5%E5%BF%97%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.1.2.</span> <span class="toc-text">标准日志实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Log4j"><span class="toc-number">1.1.3.</span> <span class="toc-text">Log4j</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#limit%E5%AE%9E%E7%8E%B0%E5%88%86%E9%A1%B5"><span class="toc-number">1.1.4.</span> <span class="toc-text">limit实现分页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RowBounds%E5%88%86%E9%A1%B5"><span class="toc-number">1.1.5.</span> <span class="toc-text">RowBounds分页</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/29/SpringBoot-10%EF%BC%9AWeb%E5%BC%80%E5%8F%91%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E5%A4%84%E7%90%86/" title="SpringBoot-10：Web开发静态资源处理"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvCTg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringBoot-10：Web开发静态资源处理"/></a><div class="content"><a class="title" href="/2022/05/29/SpringBoot-10%EF%BC%9AWeb%E5%BC%80%E5%8F%91%E9%9D%99%E6%80%81%E8%B5%84%E6%BA%90%E5%A4%84%E7%90%86/" title="SpringBoot-10：Web开发静态资源处理">SpringBoot-10：Web开发静态资源处理</a><time datetime="2022-05-29T13:36:23.000Z" title="发表于 2022-05-29 21:36:23">2022-05-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/28/SpringBoot-09%EF%BC%9A%E6%95%B4%E5%90%88MyBatis/" title="SpringBoot-09：整合MyBatis"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvZ60.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringBoot-09：整合MyBatis"/></a><div class="content"><a class="title" href="/2022/05/28/SpringBoot-09%EF%BC%9A%E6%95%B4%E5%90%88MyBatis/" title="SpringBoot-09：整合MyBatis">SpringBoot-09：整合MyBatis</a><time datetime="2022-05-28T13:36:23.000Z" title="发表于 2022-05-28 21:36:23">2022-05-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/27/SpringBoot-08%EF%BC%9A%E6%95%B4%E5%90%88Druid/" title="SpringBoot-08：整合Druid"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvZ60.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringBoot-08：整合Druid"/></a><div class="content"><a class="title" href="/2022/05/27/SpringBoot-08%EF%BC%9A%E6%95%B4%E5%90%88Druid/" title="SpringBoot-08：整合Druid">SpringBoot-08：整合Druid</a><time datetime="2022-05-27T13:36:23.000Z" title="发表于 2022-05-27 21:36:23">2022-05-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/26/SpringBoot-07%EF%BC%9A%E6%95%B4%E5%90%88JDBC/" title="SpringBoot-07：整合JDBC"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvEpn.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringBoot-07：整合JDBC"/></a><div class="content"><a class="title" href="/2022/05/26/SpringBoot-07%EF%BC%9A%E6%95%B4%E5%90%88JDBC/" title="SpringBoot-07：整合JDBC">SpringBoot-07：整合JDBC</a><time datetime="2022-05-26T13:36:23.000Z" title="发表于 2022-05-26 21:36:23">2022-05-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/25/SpringBoot-06%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89starter/" title="SpringBoot-06：自定义starter"><img src="/img/loading.gif" data-original="https://s1.ax1x.com/2022/05/08/OlvEpn.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringBoot-06：自定义starter"/></a><div class="content"><a class="title" href="/2022/05/25/SpringBoot-06%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89starter/" title="SpringBoot-06：自定义starter">SpringBoot-06：自定义starter</a><time datetime="2022-05-25T13:36:23.000Z" title="发表于 2022-05-25 21:36:23">2022-05-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://s1.ax1x.com/2022/05/08/OlvnmT.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By ChenNuo</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="/img/loading.gif" data-original="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="/img/loading.gif" data-original="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://github.com/"><img src="/img/loading.gif" data-original="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Github托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="/img/loading.gif" data-original="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://twikoo-pi-one.vercel.app/',
+      region: 'ap-shanghai',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.vemoji)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-pi-one.vercel.app/',
+      region: 'ap-shanghai',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      document.getElementById('twikoo-count').innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start -->
+  <script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/hexo-github-calendar@1.21/hexo_githubcalendar.js"></script>
+  <script data-pjax>
+        function GithubCalendarConfig(){
+            var git_githubapiurl ="https://python-github-calendar-api.vercel.app/api?ChenNuo252";
+            var git_color =['#ebedf0', '#fdcdec', '#fc9bd9', '#fa6ac5', '#f838b2', '#f5089f', '#c4067e', '#92055e', '#540336', '#48022f', '#30021f'];
+            var git_user ="ChenNuo252";
+            var parent_div_git = document.getElementById('recent-posts');
+            var git_div_html = '<div class="recent-post-item" style="width:100%;height:auto;padding:10px;"><div id="github_loading" style="width:10%;height:100%;margin:0 auto;display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 50 50" style="enable-background:new 0 0 50 50" xml:space="preserve"><path fill="#d0d0d0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z" transform="rotate(275.098 25 25)"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg></div><div id="github_container"></div></div>';
+            if(parent_div_git && location.pathname =='/'){
+                console.log('已挂载github calendar')
+                // parent_div_git.innerHTML=git_div_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",git_div_html) // 有报错，但不影响使用(支持pjax跳转)
+            };
+            GithubCalendar(git_githubapiurl,git_color,git_user)
+        }
+        if(document.getElementById('recent-posts')){
+            GithubCalendarConfig()
+        }
+    </script>
+    <style>#github_container{min-height:280px}@media screen and (max-width:650px) {#github_container{background-image:;min-height:0px}}</style>
+    <style></style><script data-pjax>
+  function card_artitalk_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-shuo"><div class="card-content" style="height:auto;min-height:280px;"><div class="item-headline"><i class="fas fa-comments"></i><span><a href="/artitalk/" title="artitalk page link">碎碎念</a></span><a id="cardVisual" style="cursor:pointer;float:right" onclick="cardVisual()">编辑</a></div><div id="artitalk_main" style="width:100%;height:100%;padding:1px"></div></div></div>';
+    console.log('已挂载card_artitalk');
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html);
+    (()=>{
+      const init = () => {
+        new Artitalk(Object.assign({
+          appId: 'kKQRNJPKCYo7wK9QC4L9NP0J-MdYXbMMI',
+          appKey: '2Ml0sIXU6Qiwgl1AdbV1VUSk',
+        }, {"serverURL":"https://kKQRNJPKCYo7wK9QC4L9NP0J-MdYXbMMI.api.lncldglobal.com","lang":"zh","pageSize":1,"color1":"#49b1f5","color2":"#00c4b6","atEmoji":{"Mafumafu1":"https://cdn.jsdelivr.net/gh/GamerNoTitle/ValineCDN@master/Mafumafu/199749454.png","Mafumafu2":"https://cdn.jsdelivr.net/gh/GamerNoTitle/ValineCDN@master/Mafumafu/199749455.png"}} ))
+      }
+      if (typeof Artitalk === 'function') {
+        init()
+      } else {
+        getScript('https://npm.elemecdn.com/artitalk').then(init)
+      }
+    })()
+    }
+  var elist = '/artitalk/,/posts/'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    card_artitalk_injector_config();
+  }
+  else if (epage === cpage){
+    card_artitalk_injector_config();
+  }
+  </script><script async src="https://npm.elemecdn.com/hexo-butterfly-artitalk-pro/lib/card_visual.js"></script><script data-pjax>
+  function butterfly_clock_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src="/img/loading.gif" data-original="/img/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_injector_config();
+  }
+  </script><script src="https://pv.sohu.com/cityjson?ie=utf-8"></script><script data-pjax src="https://unpkg.zhimg.com/hexo-butterfly-clock/lib/clock.min.js"></script><script data-pjax src="https://npm.elemecdn.com/hexo-filter-gitcalendar/lib/gitcalendar.js"></script><script data-pjax>
+  function gitcalendar_injector_config(){
+      var parent_div_git = document.getElementById('recent-posts');
+      var item_html = '<div class="recent-post-item" style="width:100%;height:auto;padding:10px;"><style>#git_container{min-height: 280px}@media screen and (max-width:650px) {#git_container{min-height: 0px}}</style><div id="git_loading" style="width:10%;height:100%;margin:0 auto;display: block;"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50" xml:space="preserve"><path fill="#d0d0d0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z" transform="rotate(275.098 25 25)"><animatetransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animatetransform></path></svg><style>#git_container{display: none;}</style></div><div id="git_container"></div></div>';
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      console.log('已挂载gitcalendar')
+      }
+
+    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+        gitcalendar_injector_config()
+        GitCalendarInit("http:www.chennuo252.top/api?ChenNuo252",['#e4dfd7', '#f9f4dc', '#f7e8aa', '#f7e8aa', '#f8df72', '#fcd217', '#fcc515', '#f28e16', '#fb8b05', '#d85916', '#f43e06'],'ChenNuo252')
+    }
+  </script><!-- hexo injector body_end end --><script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(n){n.imageLazyLoadSetting.processImages=o;var e=n.imageLazyLoadSetting.isSPA,i=n.imageLazyLoadSetting.preloadRatio||1,r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function o(){e&&(r=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")));for(var t,a=0;a<r.length;a++)0<=(t=(t=r[a]).getBoundingClientRect()).bottom&&0<=t.left&&t.top<=(n.innerHeight*i||document.documentElement.clientHeight*i)&&function(){var t,e,n,i,o=r[a];t=o,e=function(){r=r.filter(function(t){return o!==t})},n=new Image,i=t.getAttribute("data-original"),n.onload=function(){t.src=i,e&&e()},t.src!==i&&(n.src=i)}()}o(),n.addEventListener("scroll",function(){var t,e;t=o,e=n,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(e)},500)})}(this);</script></body></html>
